@@ -9,7 +9,6 @@ public class Spawner : MonoBehaviour
     [SerializeField] private int _poolCapacity = 5;
     [SerializeField] private int _poolMaxSize = 5;
 
-
     private ObjectPool<Cube> _pool;
 
     private void Awake()
