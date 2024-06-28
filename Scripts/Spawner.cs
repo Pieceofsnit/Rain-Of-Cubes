@@ -1,5 +1,6 @@
 using UnityEngine.Pool;
 using UnityEngine;
+using System.Collections;
 
 public class Spawner : MonoBehaviour
 {
@@ -9,14 +10,13 @@ public class Spawner : MonoBehaviour
     [SerializeField] private int _poolCapacity = 5;
     [SerializeField] private int _poolMaxSize = 5;
 
-
     private ObjectPool<Cube> _pool;
 
     private void Awake()
     {
         _pool = new ObjectPool<Cube>(
         createFunc: () => CreateCube(),
-        actionOnGet: (cube) => PrepareCube(cube),
+        actionOnGet: PrepareCube,
         actionOnRelease: (cube) => cube.gameObject.SetActive(false),
         actionOnDestroy: (cube) => Destroy(cube),
         collectionCheck: true,
@@ -26,7 +26,7 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating(nameof(GetCube), 0.0f, _repeatRate);
+        StartCoroutine(SpawnWithRepeatRate());
     }
 
     private void ReleaseCube(Cube cube)
@@ -37,7 +37,7 @@ public class Spawner : MonoBehaviour
     private Cube CreateCube()
     {
         Cube cube = Instantiate(_prefabCube);
-        cube.OnReleased += ReleaseCube;
+        cube.Released += ReleaseCube;
         return cube;
     }
 
@@ -48,8 +48,17 @@ public class Spawner : MonoBehaviour
 
     private void PrepareCube(Cube cube)
     {
+        cube.InitVelocity(Vector3.up);
         cube.transform.position = _startPositions[Random.Range(0, _startPositions.Length)].position;
-        cube.GetComponent<Rigidbody>().velocity = Vector3.zero;
         cube.gameObject.SetActive(true);
+    }
+
+    private IEnumerator SpawnWithRepeatRate()
+    {
+        while (true)
+        {
+            GetCube();
+            yield return new WaitForSeconds(_repeatRate);
+        }
     }
 }

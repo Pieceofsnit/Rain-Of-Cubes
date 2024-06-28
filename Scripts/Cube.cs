@@ -14,7 +14,7 @@ public class Cube : MonoBehaviour
     private float _maxLifeTime = 5f;
     private bool _isTouched = false;
 
-    public event UnityAction<Cube> OnReleased;
+    public event UnityAction<Cube> Released;
 
     private void Awake()
     {
@@ -25,6 +25,11 @@ public class Cube : MonoBehaviour
     private void OnEnable()
     {
         ResetParameters();
+    }
+
+    public void InitVelocity(Vector3 velocity)
+    {
+        _rigidbody.velocity = velocity;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -61,6 +66,6 @@ public class Cube : MonoBehaviour
             StopCoroutine(_coroutine);
         }
 
-        OnReleased?.Invoke(this);
+        Released?.Invoke(this);
     }
 }
